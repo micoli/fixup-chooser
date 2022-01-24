@@ -5,10 +5,9 @@ from ansi.colour import fg
 
 import colored_traceback
 
-from fixup_chooser.gui.fzf.gui import display_fzf_gui
 from fixup_chooser.git import get_commits_in_branch, get_candidate_commit_struct, get_staged_files, get_modified_files_in_commit, \
     colored_git_show
-from fixup_chooser.gui.curses.gui import App
+from fixup_chooser.gui import App
 
 colored_traceback.add_hook(always=True)
 pp = pprint.PrettyPrinter(indent=4)
@@ -67,12 +66,8 @@ def parse_main_args():
     parser = argparse.ArgumentParser(description='Help to rebase by selecting commit sha depending of files already staged')
 
     group = parser.add_mutually_exclusive_group()
-    group.add_argument('--curses', action='store_const', dest='action', const='curses', default='curses')
-    group.add_argument('--fzf', action='store_const', dest='action', const='fzf')
+    group.add_argument('--gui', action='store_const', dest='action', const='gui', default='gui')
     group.add_argument('--list', action='store_const', dest='action', const='list')
-    group.add_argument('--show', action='store_const', dest='action', const='show')
-
-    parser.add_argument('--sha', default=None)
 
     return parser.parse_args()
 
@@ -84,19 +79,13 @@ def main() -> None:
         for line in format_candidates_commit_for_fixup(candidates_commit_for_fixup()):
             print(line)
 
-    if args.action == 'fzf':
-        display_fzf_gui(format_candidates_commit_for_fixup(candidates_commit_for_fixup()), '' if args.sha is None else args.sha)
-
-    if args.action == 'curses':
+    if args.action == 'gui':
         app = App()
-        app.update_candidates_commit_list(candidates_commit_for_fixup(), '' if args.sha is None else args.sha)
+        app.update_candidates_commit_list(candidates_commit_for_fixup())
         try:
             app.start()
         except KeyboardInterrupt:
             pass
-
-    if args.action == 'show':
-        git_show('' if args.sha is None else args.sha)
 
 
 if __name__ == "__main__":

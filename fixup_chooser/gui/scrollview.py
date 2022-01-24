@@ -1,6 +1,6 @@
 import urwid
 
-from fixup_chooser.gui.curses.urwidhelper import translate_text_for_urwid
+from fixup_chooser.gui.urwidhelper import translate_text_for_urwid
 
 
 class ScrollViewLine(urwid.WidgetWrap):

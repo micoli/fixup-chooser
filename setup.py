@@ -21,8 +21,7 @@ setup(
     install_requires=[
         "ansi",
         "colored_traceback",
-        "urwid",
-        "pyfzf"
+        "urwid"
     ],
     extras_require={
         "testing": [

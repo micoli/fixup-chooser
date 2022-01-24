@@ -71,17 +71,14 @@ af8b9a2	2022-01-23 20:30:24 <test@example.com> (2/2) File 1 revised2, File 4 rev
 
 ## Command options
 ```
-usage: fixupChooser [-h] [--fzf | --list | --curses | --show] [--sha SHA]
+usage: fixupChooser [-h] [--gui | --list ]
 
 Help to rebase by selecting commit sha depending of files already staged
 
 optional arguments:
   -h, --help  show this help message and exit
-  --curses
-  --fzf
+  --gui
   --list
-  --show
-  --sha SHA
 
 ```
 

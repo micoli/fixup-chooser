@@ -92,6 +92,7 @@ def get_staged_files():
 
     return staged_files
 
+
 def get_branch_name():
     return process_exec(['git', 'symbolic-ref', '--short', 'HEAD'])
 
