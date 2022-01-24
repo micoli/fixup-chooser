@@ -17,6 +17,8 @@ or for upgrade
 pip install --upgrade --force-reinstall git+https://github.com/micoli/fixup-chooser.git
 ```
 
+depending of your installation `pip` can be replaced by `pip3`
+
 ## Example of executions:
 
 ```
@@ -30,31 +32,35 @@ Changes to be committed:
 
 ```
 $fixupChooser
-┌───────────────── Commit ─────────────────┐┌─────────────────────────── Staged files ───────────────────────┐
-│Date: 2022-01-23 21:23:00                 ││  10 +++ b/src/file1.txt                                        │
-│                                          ││  11 @@ -1 +1,2 @@                                              │
-│Committer: test@example.com               ││  12  modification 2                                            │
-│                                          ││  13 +modification 2.5.1                                        │
-│Message: File 1 revised2, File 4 revised 5││  14 diff --git a/src/file4.txt b/src/file4.txt                 │
-│                                          ││  15 index dc7ce73..f5843fc 100644                              │
-│Files: (2/2)                              ││  16 --- a/src/file4.txt                                        │
-│------------------------------------------││  17 +++ b/src/file4.txt                                        │
-│src/file1.txt                             ││  18 @@ -3,3 +3,4 @@                                            │
-│src/file4.txt                             ││  19  modification 2.2                                          │
-│                                          ││  20  modification 2.3                                          │
-│                                          ││  21  modification 2.4                                          │
-│                                          ││  22 +modification 2.5.2                                        │
-└──────────────────────────────────────────┘└────────────────────────────────────────────────────────────────┘
-┌────────────────────────────────────── Commits ─────────────────────────────────────────────────────────────┐
-│02f12ac     2022-01-23 21:22:59   test@example.com        (1/2)       File 4 revised                        │
-│702f0ba     2022-01-23 21:23:00   test@example.com        (1/2)       File 1 modified                       │
-│878d358     2022-01-23 21:23:00   test@example.com        (1/2)       File 4 revised 2                      │
-│4d2b453     2022-01-23 21:23:00   test@example.com        (1/2)       File 4 revised 3                      │
-│81f660b     2022-01-23 21:23:00   test@example.com        (1/2)       File 4 revised 4                      │
-│985381d     2022-01-23 21:23:00   test@example.com        (2/2)     * File 1 revised2, File 4 revised 5     │
-│5db4e30     2022-01-23 21:23:00   test@example.com        (1/2)       File 4 revised 6                      │
-│                                                                                                            │
-└────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+┌─────────────── Commit Detail/Staged files ────────────────┐┌────────────────────── Commit ──────────────────────────┐
+│Date/Sha: 2022-01-24 22:49:27 38a490e                      ││   1 commit 38a490e96670863108e7307a0a4ad50353664fdc    │
+│                                                           ││   2 Author: Name ofCommitter <bar@example.org>         │
+│Committer: foo@example.org                                 ││   3 Date:   Mon Jan 24 22:49:27 2022 +0100             │
+│                                                           ││   4                                                    │
+│Message: File 1 modified                                   ││   5     File 1 modified                                │
+│                                                           ││   6                                                    │
+│Files: (1/2)                                               ││   7 diff --git a/src/file1.txt b/src/file1.txt         │
+│―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――││   8 index e69de29..4e5e8f2 100644                      │
+│src/file1.txt                                              ││   9 --- a/src/file1.txt                                │
+│src/file4.txt                                              ││  10 +++ b/src/file1.txt                                │
+│―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――││  11 @@ -0,0 +1 @@                                      │
+│index f6aa43e..40df6e8 100644                              ││  12 +modification 2                                    │
+│--- a/src/file1.txt                                        ││                                                        │
+│+++ b/src/file1.txt                                        ││                                                        │
+│@@ -1,2 +1,3 @@                                            ││                                                        │
+└───────────────────────────────────────────────────────────┘└────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────── Commits ─────────────────────────────────────┐
+│2022-01-24 22:49:26   foo@example.org                 (1/2)       File 4 added                                       │
+│2022-01-24 22:49:27   bar@example.org                 (1/2)       File 4 modified                                    │
+│2022-01-24 22:49:27   foo@example.org                 (1/2)       File 4 revised                                     │
+│2022-01-24 22:49:27   bar@example.org                 (1/2)       File 1 modified                                    │
+│2022-01-24 22:49:27   barbar@example.org              (1/2)       File 4 revised 2                                   │
+│2022-01-24 22:49:27   foo@example.org                 (1/2)       File 4 revised 3                                   │
+│2022-01-24 22:49:27   foo@example.org                 (1/2)       File 4 revised 4                                   │
+│2022-01-24 22:49:27   bar@example.org                 (2/2)       File 1 revised2, File 4 revised 5                  │
+│2022-01-24 22:49:27   foo@example.org                 (1/2)       File 4 revised 6                                   │
+│                                                                                                                     │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ```

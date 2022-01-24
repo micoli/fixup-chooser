@@ -35,6 +35,9 @@ palette = {
 
     ("detail_file_ok", 'light green', 'black'),
     ("detail_file_nok", 'light red', 'black'),
+
+    ("separator", 'brown, bold', 'black'),
+    ("diff_file_header", 'brown, bold', 'black'),
 }
 
 class App:
@@ -55,18 +58,18 @@ class App:
             body=urwid.Columns([
                 (
                     'weight',
-                    30,
+                    40,
                     urwid.AttrMap(urwid.LineBox(
                         self.detail_view,
-                        title='Commit'
+                        title='Commit Detail/Staged files'
                     ), 'window', 'window_selected')
                 ),
                 (
                     'weight',
-                    70,
+                    60,
                     urwid.AttrMap(urwid.LineBox(
                         self.scroll_view,
-                        title='Staged files'
+                        title='Commit'
                     ), 'window', 'window_selected')
                 ),
             ]),
@@ -80,6 +83,7 @@ class App:
 
         self.tabular_items = [
             ['footer'],
+            ['body', 0],
             ['body', 1],
         ]
         self.frame.original_widget.set_focus_path(self.tabular_items[0])

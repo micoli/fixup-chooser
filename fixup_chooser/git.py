@@ -1,5 +1,6 @@
 import os
 import subprocess
+import re
 import sys
 from dataclasses import dataclass
 from fixup_chooser.process import process_exec
@@ -91,6 +92,10 @@ def get_staged_files():
         sys.exit(1)
 
     return staged_files
+
+
+def get_pretty_staged_diff():
+    return re.sub(r'^diff --git/m', '\n', process_exec(['git', 'diff', '--color', '--staged']).strip())
 
 
 def get_branch_name():
