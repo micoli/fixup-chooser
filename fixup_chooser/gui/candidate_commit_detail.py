@@ -29,6 +29,13 @@ class CandidateCommitDetailView(urwid.WidgetWrap):
         urwid.WidgetWrap.__init__(self, urwid.ListBox(self.walker))
 
     def set_candidate_commit(self, candidate_commit: CandidateCommitStruct):
+        while len(self.walker) > 0:
+            self.walker.pop()
+
+        if candidate_commit is None:
+            self.walker.extend([])
+            return
+
         modified_files = get_modified_files_in_commit(candidate_commit.sha)
 
         list_items = [
@@ -53,9 +60,6 @@ class CandidateCommitDetailView(urwid.WidgetWrap):
 
         for line in get_pretty_staged_diff().split('\n'):
             add_diff_line(list_items, line)
-
-        while len(self.walker) > 0:
-            self.walker.pop()
 
         self.walker.extend(list_items)
         self.walker.set_focus(0)

@@ -1,6 +1,8 @@
 import sys
 
 import urwid
+
+from fixup_chooser.fixup import candidates_commit_for_fixup
 from fixup_chooser.git import CandidateCommitStruct, colored_git_show
 from fixup_chooser.gui.candidate_commit_detail import CandidateCommitDetailView
 from fixup_chooser.gui.candidate_commit_list import CandidateCommitListView
@@ -42,6 +44,7 @@ palette = {
 
 class App:
     def __init__(self):
+        self.only_candidate = None
         self.palette = palette
         self.detail_view = CandidateCommitDetailView()
         self.scroll_view = ScrollView()
@@ -74,7 +77,7 @@ class App:
                 ),
             ]),
             footer=urwid.AttrMap(urwid.BoxAdapter(
-                urwid.LineBox(self.candidates_commit_list_view, title='Commits'),
+                urwid.LineBox(self.candidates_commit_list_view, title='Commits - [f] to toggle filter on candidate'),
                 height=15
             ), 'window', 'window_selected')
         ), 'bg')
@@ -89,24 +92,30 @@ class App:
         self.frame.original_widget.set_focus_path(self.tabular_items[0])
 
     def start(self):
+        self.only_candidate = True
+        self.update_candidates_commit_list(candidates_commit_for_fixup(self.only_candidate))
         self.loop.run()
-        print(process_exec(['git', 'commit', '--fixup', self.selected_candidate_commit.sha]))
+        print(process_exec(['git', 'commit', '--no-verify', '--fixup', self.selected_candidate_commit.sha]))
 
     def candidate_commit_changed(self, candidate_commit: CandidateCommitStruct):
         self.selected_candidate_commit = candidate_commit
-        self.detail_view.set_candidate_commit(candidate_commit)
-        self.scroll_view.set_lines(colored_git_show(candidate_commit.sha).split('\n'))
+        if candidate_commit is not None:
+            self.detail_view.set_candidate_commit(candidate_commit)
+            self.scroll_view.set_lines(colored_git_show(candidate_commit.sha).split('\n'))
+            return
+        self.detail_view.set_candidate_commit(None)
+        self.scroll_view.set_lines([])
 
     def update_candidates_commit_list(self, candidates_commit_list,):
-        if len(candidates_commit_list) == 0:
-            print('No commits are candidate to fixup')
-            sys.exit(1)
-
         self.candidates_commit_list_view.set_candidates_commit_list(candidates_commit_list)
 
     def unhandled_input(self, key):
         if key in ('q',):
             raise KeyboardInterrupt()
+
+        if key in ('f',):
+            self.only_candidate = not self.only_candidate
+            self.update_candidates_commit_list(candidates_commit_for_fixup(self.only_candidate))
 
         if key in ('enter',):
             raise urwid.ExitMainLoop()

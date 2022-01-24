@@ -55,7 +55,7 @@ class CandidateCommitListView(urwid.WidgetWrap):
     def modified(self):
         focus_w, _ = self.walker.get_focus()
 
-        urwid.emit_signal(self, 'candidate_commit_changed', focus_w.content)
+        urwid.emit_signal(self, 'candidate_commit_changed', focus_w.content if focus_w is not None else None)
 
     def set_candidates_commit_list(self, candidate_commits):
         urwid.disconnect_signal(self.walker, 'modified', self.modified)
