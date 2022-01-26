@@ -4,8 +4,8 @@ from ansi.colour import fg
 from fixup_chooser.git import get_commits_in_branch, get_candidate_commit_struct, get_staged_files, get_modified_files_in_commit
 
 
-def candidates_commit_for_fixup(only_candidate):
-    commit_shas = get_commits_in_branch()
+def candidates_commit_for_fixup(only_candidate, origin_branch):
+    commit_shas = get_commits_in_branch(origin_branch)
     commit_shas.reverse()
 
     if len(commit_shas) == 0:

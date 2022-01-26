@@ -77,18 +77,35 @@ af8b9a2	2022-01-23 20:30:24 <test@example.com> (2/2) File 1 revised2, File 4 rev
 
 ## Command options
 ```
-usage: fixupChooser [-h] [--gui | --list ]
+usage: fixupChooser [-h] [--gui | --list | --git-init] [--rebase-origin REBASE_ORIGIN] [--commit-fixup-command COMMIT_FIXUP_COMMAND]
 
 Help to rebase by selecting commit sha depending of files already staged
 
 optional arguments:
-  -h, --help  show this help message and exit
-  --gui
-  --list
+  -h, --help            show this help message and exit
+  --gui                 GUI mode
+  --list                Only display candidate commit list
+  --git-init            set .gitconfig initial configuration
+  --rebase-origin REBASE_ORIGIN
+                        Origin for rebase (aa)
+  --commit-fixup-command COMMIT_FIXUP_COMMAND
+                        GIT command to "commit fixup" (git commit --fixup)
 
+Options are taken in the following order:
+ - Internal default value
+ - Then, if set, `GIT option` value
+ - Then, if set, `environment` value
+ - Then, if set, `argument` value
+╒═══════════════════════════════╤════════════════════════════════════╤═════════════════════════════════╤══════════════════════════╕
+│                               │ Environment key                    │ GIT option                      │ Internal Default value   │
+╞═══════════════════════════════╪════════════════════════════════════╪═════════════════════════════════╪══════════════════════════╡
+│ Origin for rebase             │ FIXUP_CHOOSER_REBASE_ORIGIN        │ fixupChooser.rebaseOrigin       │ origin/master            │
+├───────────────────────────────┼────────────────────────────────────┼─────────────────────────────────┼──────────────────────────┤
+│ GIT command to "commit fixup" │ FIXUP_CHOOSER_COMMIT_FIXUP_COMMAND │ fixupChooser.commitFixupCommand │ git commit --fixup       │
+╘═══════════════════════════════╧════════════════════════════════════╧═════════════════════════════════╧══════════════════════════╛
 ```
 
-`FIXUP_CHOOSER_ORIGIN` set the origin of the branch, if not set then `origin/master` is used, if it
+`FIXUP_CHOOSER_REBASE_ORIGIN` set the origin of the branch, if not set then `origin/master` is used, if it
 does not exists, then `ALL` commits are processed
 
 ## How to Develop

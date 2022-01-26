@@ -1,4 +1,5 @@
 import re
+
 import urwid
 
 from fixup_chooser.git import CandidateCommitStruct, get_modified_files_in_commit, get_staged_files, \
@@ -59,7 +60,8 @@ class CandidateCommitDetailView(urwid.WidgetWrap):
             ))
 
         for line in get_pretty_staged_diff().split('\n'):
-            add_diff_line(list_items, line)
+            if line != '':
+                add_diff_line(list_items, line)
 
         self.walker.extend(list_items)
         self.walker.set_focus(0)

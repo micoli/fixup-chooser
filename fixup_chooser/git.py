@@ -51,11 +51,7 @@ def get_candidate_commit_struct(sha, staged_files, modified_files):
     )
 
 
-def get_commits_in_branch():
-    if os.environ.get('FIXUP_CHOOSER_ORIGIN') is None:
-        origin_branch = 'origin/master'
-    else:
-        origin_branch = os.environ.get('FIXUP_CHOOSER_ORIGIN')
+def get_commits_in_branch(origin_branch):
     try:
         return get_commits_in_range('%s..%s' % (origin_branch, get_branch_name()))
     except subprocess.CalledProcessError:
@@ -84,14 +80,9 @@ def get_modified_files_in_commit(sha):
 
 
 def get_staged_files():
-    staged_files = filter_not_empty(
+    return filter_not_empty(
         process_exec(['git', 'diff', '--cached', '--name-only']).split("\n")
     )
-    if len(staged_files) == 0:
-        print('Nothing in staged area')
-        sys.exit(1)
-
-    return staged_files
 
 
 def get_pretty_staged_diff():
@@ -102,5 +93,31 @@ def get_branch_name():
     return process_exec(['git', 'symbolic-ref', '--short', 'HEAD'])
 
 
+def do_commit_fixup(command_format, sha):
+    os.system(command_format + ' ' + sha)
+
+
+def do_commit(command_format, message, body):
+    if body is None or len(body.strip()) == 0:
+        os.system((command_format + '-m "%s"') % message)
+        return
+    os.system((command_format + '-m "%s" -m "%s"') % (message, body))
+
+
 def colored_git_show(sha):
     return process_exec(['git', 'show', '--color', sha])
+
+
+def git_get_config(config_key):
+    try:
+        return process_exec(['git', 'config', '--get', config_key]).strip()
+    except:  # pylint: disable=bare-except
+        return None
+
+
+def git_set_config(config_key, value):
+    try:
+        process_exec(['git', 'config', '--global', '--unset-all', config_key])
+    except subprocess.CalledProcessError:
+        pass
+    return process_exec(['git', 'config', '--global', '--add', config_key, value]).strip()

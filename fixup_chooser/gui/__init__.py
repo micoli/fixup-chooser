@@ -1,5 +1,3 @@
-import sys
-
 import urwid
 
 from fixup_chooser.fixup import candidates_commit_for_fixup
@@ -8,7 +6,6 @@ from fixup_chooser.gui.candidate_commit_detail import CandidateCommitDetailView
 from fixup_chooser.gui.candidate_commit_list import CandidateCommitListView
 from fixup_chooser.gui.scrollview import ScrollView
 # pylint: disable=too-many-instance-attributes
-from fixup_chooser.process import process_exec
 
 palette = {
     ("bg", 'white', 'black'),
@@ -42,14 +39,16 @@ palette = {
     ("diff_file_header", 'brown, bold', 'black'),
 }
 
+
 class App:
-    def __init__(self):
-        self.only_candidate = None
+    def __init__(self, rebase_origin):
+        self.only_candidate = True
+        self.rebase_origin = rebase_origin
+        self.selected_candidate_commit = None
         self.palette = palette
         self.detail_view = CandidateCommitDetailView()
         self.scroll_view = ScrollView()
         self.candidates_commit_list_view = CandidateCommitListView()
-        self.selected_candidate_commit = None
 
         urwid.connect_signal(
             self.candidates_commit_list_view,
@@ -82,8 +81,7 @@ class App:
             ), 'window', 'window_selected')
         ), 'bg')
 
-        self.loop = urwid.MainLoop(self.frame, self.palette, unhandled_input=self.unhandled_input)
-
+        self.loop = urwid.MainLoop(self.frame, self.palette, unhandled_input=self.unhandled_input, pop_ups=True)
         self.tabular_items = [
             ['footer'],
             ['body', 0],
@@ -92,10 +90,9 @@ class App:
         self.frame.original_widget.set_focus_path(self.tabular_items[0])
 
     def start(self):
-        self.only_candidate = True
-        self.update_candidates_commit_list(candidates_commit_for_fixup(self.only_candidate))
+        self.update_candidates_commit_list(candidates_commit_for_fixup(self.only_candidate, self.rebase_origin))
         self.loop.run()
-        print(process_exec(['git', 'commit', '--no-verify', '--fixup', self.selected_candidate_commit.sha]))
+        return self.selected_candidate_commit.sha if self.selected_candidate_commit is not None else None
 
     def candidate_commit_changed(self, candidate_commit: CandidateCommitStruct):
         self.selected_candidate_commit = candidate_commit
@@ -106,7 +103,7 @@ class App:
         self.detail_view.set_candidate_commit(None)
         self.scroll_view.set_lines([])
 
-    def update_candidates_commit_list(self, candidates_commit_list,):
+    def update_candidates_commit_list(self, candidates_commit_list):
         self.candidates_commit_list_view.set_candidates_commit_list(candidates_commit_list)
 
     def unhandled_input(self, key):
@@ -115,7 +112,7 @@ class App:
 
         if key in ('f',):
             self.only_candidate = not self.only_candidate
-            self.update_candidates_commit_list(candidates_commit_for_fixup(self.only_candidate))
+            self.update_candidates_commit_list(candidates_commit_for_fixup(self.only_candidate, self.rebase_origin))
 
         if key in ('enter',):
             raise urwid.ExitMainLoop()

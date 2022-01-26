@@ -21,7 +21,8 @@ setup(
     install_requires=[
         "ansi",
         "colored_traceback",
-        "urwid"
+        "urwid",
+        "tabulate"
     ],
     extras_require={
         "testing": [
