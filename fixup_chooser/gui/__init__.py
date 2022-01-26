@@ -2,7 +2,7 @@ import os
 import urwid
 
 from fixup_chooser.fixup import candidates_commit_for_fixup
-from fixup_chooser.git import CandidateCommitStruct, colored_git_show, do_commit
+from fixup_chooser.git import CandidateCommitStruct, colored_git_show, do_commit, do_commit_fixup
 from fixup_chooser.gui.candidate_commit_detail import CandidateCommitDetailView
 from fixup_chooser.gui.candidate_commit_list import CandidateCommitListView
 from fixup_chooser.gui.git_commit_message import PopupCommitMessage, CommitMessage
@@ -85,7 +85,7 @@ class App:
             footer=urwid.AttrMap(urwid.BoxAdapter(
                 urwid.LineBox(
                     self.candidates_commit_list_view,
-                    title='Commits - [f] toggle filter on candidate - [s] git status - [a] add patch - [m] commit'
+                    title='Commits - [f] toggle filter on candidate - [s] git status - [a] add patch - [m] commit - [x] fixup'
                 ),
                 height=15
             ), 'window', 'window_selected')
@@ -149,6 +149,7 @@ class App:
             command()
         else:
             os.system(command)
+        input('---------------\nPress enter to continue')
         self.loop.screen.start(alternate_buffer=True)
         self.loop.screen.clear()
         self.show_main_screen()
@@ -175,6 +176,15 @@ class App:
 
         if key in ('a',):
             self.shell_command(self.add_patch_command)
+
+        if key in ('x',):
+            if self.selected_candidate_commit is None:
+                return
+
+            def command():
+                do_commit_fixup(self.commit_fixup_command, self.selected_candidate_commit.sha)
+
+            self.shell_command(command)
 
         if key in ('m',):
             self.display_git_commit_popup()
