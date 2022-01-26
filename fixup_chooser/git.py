@@ -98,10 +98,10 @@ def do_commit_fixup(command_format, sha):
 
 
 def do_commit(command_format, message, body):
-    if body is None or len(body.strip()) == 0:
-        os.system((command_format + '-m "%s"') % message)
-        return
-    os.system((command_format + '-m "%s" -m "%s"') % (message, body))
+    command = (command_format + ' -m "%s"') % message
+    if body is not None or len(body.strip()) != 0:
+        command = (command_format + ' -m "%s" -m "%s"') % (message, body)
+    os.system(command)
 
 
 def colored_git_show(sha):

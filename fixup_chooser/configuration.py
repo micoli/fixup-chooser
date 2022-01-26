@@ -51,6 +51,10 @@ options = [ConfigurationOption(
     argument_name='add-patch-command',
     default_value='git add -p',
     message='GIT command to "git add -p"',
+), ConfigurationOption(
+    argument_name='commit-command',
+    default_value='git commit ',
+    message='GIT command to "git commit"',
 )]
 
 

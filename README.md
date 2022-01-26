@@ -49,7 +49,7 @@ $fixupChooser
 │+++ b/src/file1.txt                                        ││                                                        │
 │@@ -1,2 +1,3 @@                                            ││                                                        │
 └───────────────────────────────────────────────────────────┘└────────────────────────────────────────────────────────┘
-┌──────────────────── Commits - [f] toggle filter on candidate - [s] git status - [a] add patch ──────────────────────┐
+┌──────────── Commits - [f] toggle filter on candidate - [s] git status - [a] add patch  - [m] commit ────────────────┐
 │2022-01-24 22:49:26   foo@example.org                 (1/2)       File 4 added                                       │
 │2022-01-24 22:49:27   bar@example.org                 (1/2)       File 4 modified                                    │
 │2022-01-24 22:49:27   foo@example.org                 (1/2)       File 4 revised                                     │
@@ -78,6 +78,7 @@ af8b9a2	2022-01-23 20:30:24 <test@example.com> (2/2) File 1 revised2, File 4 rev
 ## Command options
 ```
 usage: fixupChooser [-h] [--gui | --list | --git-init] [--rebase-origin REBASE_ORIGIN] [--commit-fixup-command COMMIT_FIXUP_COMMAND] [--add-patch-command ADD_PATCH_COMMAND]
+                    [--commit-command COMMIT_COMMAND]
 
 Help to rebase by selecting commit sha depending of files already staged
 
@@ -87,11 +88,13 @@ optional arguments:
   --list                Only display candidate commit list
   --git-init            set .gitconfig initial configuration
   --rebase-origin REBASE_ORIGIN
-                        Origin for rebase (origin/indexer_master)
+                        Origin for rebase (origin/master)
   --commit-fixup-command COMMIT_FIXUP_COMMAND
                         GIT command to "commit fixup" (git commit --fixup)
   --add-patch-command ADD_PATCH_COMMAND
                         GIT command to "git add -p" (git add -p)
+  --commit-command COMMIT_COMMAND
+                        GIT command to "git commit" (git commit)
 
 Option values are taken in the following order:
  - Internal default value at first
@@ -106,8 +109,10 @@ Option values are taken in the following order:
 │ GIT command to "commit fixup" │ FIXUP_CHOOSER_COMMIT_FIXUP_COMMAND │ fixupChooser.commitFixupCommand │ git commit --fixup       │
 ├───────────────────────────────┼────────────────────────────────────┼─────────────────────────────────┼──────────────────────────┤
 │ GIT command to "git add -p"   │ FIXUP_CHOOSER_ADD_PATCH_COMMAND    │ fixupChooser.addPatchCommand    │ git add -p               │
-╘═══════════════════════════════╧════════════════════════════════════╧═════════════════════════════════╧══════════════════════════╛```
-
+├───────────────────────────────┼────────────────────────────────────┼─────────────────────────────────┼──────────────────────────┤
+│ GIT command to "git commit"   │ FIXUP_CHOOSER_COMMIT_COMMAND       │ fixupChooser.commitCommand      │ git commit               │
+╘═══════════════════════════════╧════════════════════════════════════╧═════════════════════════════════╧══════════════════════════╛
+ 
 `FIXUP_CHOOSER_REBASE_ORIGIN` set the origin of the branch, if not set then `origin/master` is used, if it
 does not exists, then `ALL` commits are processed
 

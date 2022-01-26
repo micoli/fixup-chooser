@@ -2,9 +2,10 @@ import os
 import urwid
 
 from fixup_chooser.fixup import candidates_commit_for_fixup
-from fixup_chooser.git import CandidateCommitStruct, colored_git_show
+from fixup_chooser.git import CandidateCommitStruct, colored_git_show, do_commit
 from fixup_chooser.gui.candidate_commit_detail import CandidateCommitDetailView
 from fixup_chooser.gui.candidate_commit_list import CandidateCommitListView
+from fixup_chooser.gui.git_commit_message import PopupCommitMessage, CommitMessage
 from fixup_chooser.gui.git_status import PopupGitStatus
 from fixup_chooser.gui.scrollview import ScrollView
 # pylint: disable=too-many-instance-attributes
@@ -44,10 +45,12 @@ palette = {
 
 
 class App:
-    def __init__(self, rebase_origin, add_patch_command):
+    def __init__(self, rebase_origin, add_patch_command, commit_fixup_command, commit_command):
         self.only_candidate = True
         self.add_patch_command = add_patch_command
         self.rebase_origin = rebase_origin
+        self.commit_fixup_command = commit_fixup_command
+        self.commit_command = commit_command
         self.selected_candidate_commit = None
         self.palette = palette
         self.detail_view = CandidateCommitDetailView()
@@ -82,7 +85,7 @@ class App:
             footer=urwid.AttrMap(urwid.BoxAdapter(
                 urwid.LineBox(
                     self.candidates_commit_list_view,
-                    title='Commits - [f] toggle filter on candidate - [s] git status - [a] add patch'
+                    title='Commits - [f] toggle filter on candidate - [s] git status - [a] add patch - [m] commit'
                 ),
                 height=15
             ), 'window', 'window_selected')
@@ -91,12 +94,21 @@ class App:
         self.git_status_popup = PopupGitStatus()
         urwid.connect_signal(self.git_status_popup, 'validated', self.show_main_screen)
 
+        self.git_commit_popup = PopupCommitMessage()
+        urwid.connect_signal(self.git_commit_popup, 'validated', self.git_commit_popup_validated)
+        urwid.connect_signal(self.git_commit_popup, 'close', self.show_main_screen)
+
         self.loop = urwid.MainLoop(self.frame, self.palette, unhandled_input=self.unhandled_input, pop_ups=True)
-        self.tabular_items = TabularItems(self.frame.original_widget,[
+        self.tabular_items = TabularItems(self.frame.original_widget, [
             ['footer'],
             ['body', 0],
             ['body', 1],
         ])
+
+    def git_commit_popup_validated(self, commit_message: CommitMessage):
+        def command():
+            do_commit(self.commit_command, commit_message.message, commit_message.body)
+        self.shell_command(command)
 
     def start(self):
         candidates_commit = candidates_commit_for_fixup(self.only_candidate, self.rebase_origin)
@@ -133,10 +145,22 @@ class App:
     def shell_command(self, command):
         self.loop.screen.stop()
         print(chr(27) + "[2J")
-        os.system(command)
+        if callable(command):
+            command()
+        else:
+            os.system(command)
         self.loop.screen.start(alternate_buffer=True)
         self.loop.screen.clear()
+        self.show_main_screen()
         self.refresh_commit_candidate_commits()
+
+    def display_git_commit_popup(self):
+        self.loop.widget = urwid.Overlay(
+            self.git_commit_popup,
+            self.frame,
+            align='center', width=('relative', 60),
+            valign='middle', height=('relative', 30)
+        )
 
     def unhandled_input(self, key):
         if key in ('q',):
@@ -151,6 +175,9 @@ class App:
 
         if key in ('a',):
             self.shell_command(self.add_patch_command)
+
+        if key in ('m',):
+            self.display_git_commit_popup()
 
         if key in ('f',):
             self.toggle_only_candidate()
