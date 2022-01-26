@@ -1,3 +1,4 @@
+import os
 import urwid
 
 from fixup_chooser.fixup import candidates_commit_for_fixup
@@ -42,8 +43,9 @@ palette = {
 
 
 class App:
-    def __init__(self, rebase_origin):
+    def __init__(self, rebase_origin, add_patch_command):
         self.only_candidate = True
+        self.add_patch_command = add_patch_command
         self.rebase_origin = rebase_origin
         self.selected_candidate_commit = None
         self.palette = palette
@@ -77,7 +79,10 @@ class App:
                 ),
             ]),
             footer=urwid.AttrMap(urwid.BoxAdapter(
-                urwid.LineBox(self.candidates_commit_list_view, title='Commits - [f] to toggle filter on candidate - [s] to show git status'),
+                urwid.LineBox(
+                    self.candidates_commit_list_view,
+                    title='Commits - [f] toggle filter on candidate - [s] git status - [a] add patch'
+                ),
                 height=15
             ), 'window', 'window_selected')
         ), 'bg')
@@ -118,9 +123,20 @@ class App:
     def show_main_screen(self, *kwargs):  # pylint: disable=unused-argument
         self.loop.widget = self.frame
 
+    def refresh_commit_candidate_commits(self):
+        self.update_candidates_commit_list(candidates_commit_for_fixup(self.only_candidate, self.rebase_origin))
+
     def toggle_only_candidate(self):
         self.only_candidate = not self.only_candidate
-        self.update_candidates_commit_list(candidates_commit_for_fixup(self.only_candidate, self.rebase_origin))
+        self.refresh_commit_candidate_commits()
+
+    def shell_command(self, command):
+        self.loop.screen.stop()
+        print(chr(27) + "[2J")
+        os.system(command)
+        self.loop.screen.start(alternate_buffer=True)
+        self.loop.screen.clear()
+        self.refresh_commit_candidate_commits()
 
     def unhandled_input(self, key):
         if key in ('q',):
@@ -132,6 +148,9 @@ class App:
                 self.git_status_popup.reload()
             else:
                 self.show_main_screen()
+
+        if key in ('a',):
+            self.shell_command(self.add_patch_command)
 
         if key in ('f',):
             self.toggle_only_candidate()

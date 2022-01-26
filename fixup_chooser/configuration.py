@@ -47,6 +47,10 @@ options = [ConfigurationOption(
     argument_name='commit-fixup-command',
     default_value='git commit --fixup ',
     message='GIT command to "commit fixup"',
+), ConfigurationOption(
+    argument_name='add-patch-command',
+    default_value='git add -p',
+    message='GIT command to "git add -p"',
 )]
 
 
