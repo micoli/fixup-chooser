@@ -6,7 +6,7 @@ from fixup_chooser.gui.urwidhelper import translate_text_for_urwid
 class ScrollViewLine(urwid.WidgetWrap):
     def __init__(self, line_number, content):
         item = urwid.Text(translate_text_for_urwid('%4d %s' % (line_number, content)))
-        urwid.WidgetWrap.__init__(self, urwid.AttrWrap(item,'scroll_line', 'scroll_line_selected'))
+        urwid.WidgetWrap.__init__(self, urwid.AttrWrap(item, 'scroll_line', 'scroll_line_selected'))
 
     def selectable(self):
         return True

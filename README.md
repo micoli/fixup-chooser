@@ -49,7 +49,7 @@ $fixupChooser
 │+++ b/src/file1.txt                                        ││                                                        │
 │@@ -1,2 +1,3 @@                                            ││                                                        │
 └───────────────────────────────────────────────────────────┘└────────────────────────────────────────────────────────┘
-┌────────────────────────────────────── Commits  - [f] to toggle filter on candidate ─────────────────────────────────┐
+┌────────────────────────── Commits - [f] to toggle filter on candidate - [s] to show git status ─────────────────────┐
 │2022-01-24 22:49:26   foo@example.org                 (1/2)       File 4 added                                       │
 │2022-01-24 22:49:27   bar@example.org                 (1/2)       File 4 modified                                    │
 │2022-01-24 22:49:27   foo@example.org                 (1/2)       File 4 revised                                     │

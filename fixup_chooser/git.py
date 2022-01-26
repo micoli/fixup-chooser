@@ -108,6 +108,10 @@ def colored_git_show(sha):
     return process_exec(['git', 'show', '--color', sha])
 
 
+def colored_git_status():
+    return process_exec(['git', '-c', 'color.status=always', 'status'])
+
+
 def git_get_config(config_key):
     try:
         return process_exec(['git', 'config', '--get', config_key]).strip()

@@ -4,6 +4,7 @@ from fixup_chooser.fixup import candidates_commit_for_fixup
 from fixup_chooser.git import CandidateCommitStruct, colored_git_show
 from fixup_chooser.gui.candidate_commit_detail import CandidateCommitDetailView
 from fixup_chooser.gui.candidate_commit_list import CandidateCommitListView
+from fixup_chooser.gui.git_status import PopupGitStatus
 from fixup_chooser.gui.scrollview import ScrollView
 # pylint: disable=too-many-instance-attributes
 
@@ -47,7 +48,7 @@ class App:
         self.selected_candidate_commit = None
         self.palette = palette
         self.detail_view = CandidateCommitDetailView()
-        self.scroll_view = ScrollView()
+        self.commit_scroll_view = ScrollView()
         self.candidates_commit_list_view = CandidateCommitListView()
 
         urwid.connect_signal(
@@ -70,16 +71,19 @@ class App:
                     'weight',
                     60,
                     urwid.AttrMap(urwid.LineBox(
-                        self.scroll_view,
+                        self.commit_scroll_view,
                         title='Commit'
                     ), 'window', 'window_selected')
                 ),
             ]),
             footer=urwid.AttrMap(urwid.BoxAdapter(
-                urwid.LineBox(self.candidates_commit_list_view, title='Commits - [f] to toggle filter on candidate'),
+                urwid.LineBox(self.candidates_commit_list_view, title='Commits - [f] to toggle filter on candidate - [s] to show git status'),
                 height=15
             ), 'window', 'window_selected')
         ), 'bg')
+
+        self.git_status_popup = PopupGitStatus()
+        urwid.connect_signal(self.git_status_popup, 'validated', self.show_main_screen)
 
         self.loop = urwid.MainLoop(self.frame, self.palette, unhandled_input=self.unhandled_input, pop_ups=True)
         self.tabular_items = [
@@ -90,7 +94,12 @@ class App:
         self.frame.original_widget.set_focus_path(self.tabular_items[0])
 
     def start(self):
-        self.update_candidates_commit_list(candidates_commit_for_fixup(self.only_candidate, self.rebase_origin))
+        candidates_commit = candidates_commit_for_fixup(self.only_candidate, self.rebase_origin)
+        if len(candidates_commit) == 0:
+            self.only_candidate = False
+            candidates_commit = candidates_commit_for_fixup(self.only_candidate, self.rebase_origin)
+        self.update_candidates_commit_list(candidates_commit)
+
         self.loop.run()
         return self.selected_candidate_commit.sha if self.selected_candidate_commit is not None else None
 
@@ -98,21 +107,34 @@ class App:
         self.selected_candidate_commit = candidate_commit
         if candidate_commit is not None:
             self.detail_view.set_candidate_commit(candidate_commit)
-            self.scroll_view.set_lines(colored_git_show(candidate_commit.sha).split('\n'))
+            self.commit_scroll_view.set_lines(colored_git_show(candidate_commit.sha).split('\n'))
             return
         self.detail_view.set_candidate_commit(None)
-        self.scroll_view.set_lines([])
+        self.commit_scroll_view.set_lines([])
 
     def update_candidates_commit_list(self, candidates_commit_list):
         self.candidates_commit_list_view.set_candidates_commit_list(candidates_commit_list)
+
+    def show_main_screen(self, *kwargs):  # pylint: disable=unused-argument
+        self.loop.widget = self.frame
+
+    def toggle_only_candidate(self):
+        self.only_candidate = not self.only_candidate
+        self.update_candidates_commit_list(candidates_commit_for_fixup(self.only_candidate, self.rebase_origin))
 
     def unhandled_input(self, key):
         if key in ('q',):
             raise KeyboardInterrupt()
 
+        if key in ('s',):
+            if self.loop.widget == self.frame:
+                self.loop.widget = self.git_status_popup
+                self.git_status_popup.reload()
+            else:
+                self.show_main_screen()
+
         if key in ('f',):
-            self.only_candidate = not self.only_candidate
-            self.update_candidates_commit_list(candidates_commit_for_fixup(self.only_candidate, self.rebase_origin))
+            self.toggle_only_candidate()
 
         if key in ('enter',):
             raise urwid.ExitMainLoop()
