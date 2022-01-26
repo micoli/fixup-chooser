@@ -8,6 +8,7 @@ from fixup_chooser.gui.candidate_commit_list import CandidateCommitListView
 from fixup_chooser.gui.git_status import PopupGitStatus
 from fixup_chooser.gui.scrollview import ScrollView
 # pylint: disable=too-many-instance-attributes
+from fixup_chooser.gui.tabular_items import TabularItems
 
 palette = {
     ("bg", 'white', 'black'),
@@ -91,12 +92,11 @@ class App:
         urwid.connect_signal(self.git_status_popup, 'validated', self.show_main_screen)
 
         self.loop = urwid.MainLoop(self.frame, self.palette, unhandled_input=self.unhandled_input, pop_ups=True)
-        self.tabular_items = [
+        self.tabular_items = TabularItems(self.frame.original_widget,[
             ['footer'],
             ['body', 0],
             ['body', 1],
-        ]
-        self.frame.original_widget.set_focus_path(self.tabular_items[0])
+        ])
 
     def start(self):
         candidates_commit = candidates_commit_for_fixup(self.only_candidate, self.rebase_origin)
@@ -159,7 +159,7 @@ class App:
             raise urwid.ExitMainLoop()
 
         if key in ('tab',):
-            current_focus_path = self.frame.original_widget.get_focus_path()
-            self.frame.original_widget.set_focus_path(
-                self.tabular_items[(self.tabular_items.index(current_focus_path) + 1) % len(self.tabular_items)]
-            )
+            self.tabular_items.handle_next()
+
+        if key in ('shift tab',):
+            self.tabular_items.handle_previous()
