@@ -111,12 +111,11 @@ class App:
         self.shell_command(command)
 
     def start(self):
-        candidates_commit = candidates_commit_for_fixup(self.only_candidate, self.rebase_origin)
+        candidates_commit = self.get_candidates_commit_for_fixup()
         if len(candidates_commit) == 0:
             self.only_candidate = False
-            candidates_commit = candidates_commit_for_fixup(self.only_candidate, self.rebase_origin)
+            candidates_commit = self.get_candidates_commit_for_fixup()
         self.update_candidates_commit_list(candidates_commit)
-
         self.loop.run()
         return self.selected_candidate_commit.sha if self.selected_candidate_commit is not None else None
 
@@ -134,13 +133,31 @@ class App:
 
     def show_main_screen(self, *kwargs):  # pylint: disable=unused-argument
         self.loop.widget = self.frame
+        self.loop.draw_screen()
 
     def refresh_commit_candidate_commits(self):
-        self.update_candidates_commit_list(candidates_commit_for_fixup(self.only_candidate, self.rebase_origin))
+        self.update_candidates_commit_list(self.get_candidates_commit_for_fixup())
 
     def toggle_only_candidate(self):
         self.only_candidate = not self.only_candidate
         self.refresh_commit_candidate_commits()
+
+    def get_candidates_commit_for_fixup(self):
+        if self.loop_screen_is_started():
+            self.loop.widget = urwid.Overlay(
+                urwid.Filler(urwid.LineBox(urwid.GridFlow([urwid.Text('Scanning')], 10, 1, 1, 'center'))),
+                self.frame,
+                align='center', width=('relative', 10),
+                valign='middle', height=('relative', 10)
+            )
+            self.loop.draw_screen()
+        candidates = candidates_commit_for_fixup(self.only_candidate, self.rebase_origin)
+        if self.loop_screen_is_started():
+            self.show_main_screen()
+        return candidates
+
+    def loop_screen_is_started(self):
+        return  self.loop.screen._started # pylint: disable=protected-access
 
     def shell_command(self, command):
         self.loop.screen.stop()

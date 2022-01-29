@@ -5,6 +5,7 @@ import sys
 from dataclasses import dataclass
 from fixup_chooser.process import process_exec
 
+cache = {}
 
 @dataclass
 class CommitStruct:
@@ -25,19 +26,25 @@ class CandidateCommitStruct:
 
 
 def get_commit_struct(sha):
+    cache_key = 'get_commit_struct-%s' % sha
+    cached_value = cache.get(cache_key)
+    if cached_value is not None:
+        return cached_value
+
     values = process_exec([
         'git', '--no-pager', 'log',
         '--date=format:%Y-%m-%d %H:%M:%S',
         '--format=%h\t%ad\t%ae\t%s',
         '-n', '1', sha
     ]).split('\t')
-
-    return CommitStruct(
+    cache[cache_key] = CommitStruct(
         short_sha=values[0],
         date=values[1],
         committer=values[2],
         message=values[3],
     )
+
+    return cache[cache_key]
 
 
 def get_candidate_commit_struct(sha, staged_files, modified_files):
@@ -76,7 +83,13 @@ def get_commits_in_range(_range):
 
 
 def get_modified_files_in_commit(sha):
-    return process_exec(['git', 'diff-tree', '--no-commit-id', '--name-only', '-r', sha]).split("\n")
+    cache_key = 'get_modified_files_in_commit-%s' % sha
+    cached_value = cache.get(cache_key)
+    if cached_value is not None:
+        return cached_value
+
+    cache[cache_key] = process_exec(['git', 'diff-tree', '--no-commit-id', '--name-only', '-r', sha]).split("\n")
+    return cache[cache_key]
 
 
 def get_staged_files():
@@ -105,7 +118,13 @@ def do_commit(command_format, message, body):
 
 
 def colored_git_show(sha):
-    return process_exec(['git', 'show', '--color', sha])
+    cache_key = 'colored_git_show-%s' % sha
+    cached_value = cache.get(cache_key)
+    if cached_value is not None:
+        return cached_value
+
+    cache[cache_key] = process_exec(['git', 'show', '--color', sha])
+    return cache[cache_key]
 
 
 def colored_git_status():
