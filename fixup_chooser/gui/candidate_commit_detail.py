@@ -33,25 +33,24 @@ class CandidateCommitDetailView(urwid.WidgetWrap):
         while len(self.walker) > 0:
             self.walker.pop()
 
-        if candidate_commit is None:
-            self.walker.extend([])
-            return
+        list_items = []
+        modified_files = []
+        if candidate_commit is not None:
+            modified_files = get_modified_files_in_commit(candidate_commit.sha)
 
-        modified_files = get_modified_files_in_commit(candidate_commit.sha)
-
-        list_items = [
-            urwid.Text('Date/Sha: %s %s' % (candidate_commit.commit.date, candidate_commit.sha), align='left'),
-            blank,
-            urwid.Text('Committer: %s' % candidate_commit.commit.committer, align='left'),
-            blank,
-            urwid.Text('Message: %s' % candidate_commit.commit.message, align='left'),
-            blank,
-            urwid.Text('Files: (%d/%d)' % (
-                candidate_commit.numbers_of_file_found,
-                candidate_commit.total_file_staged
-            ), align='left'),
-            separator,
-        ]
+            list_items = [
+                urwid.Text('Date/Sha: %s %s' % (candidate_commit.commit.date, candidate_commit.sha), align='left'),
+                blank,
+                urwid.Text('Committer: %s' % candidate_commit.commit.committer, align='left'),
+                blank,
+                urwid.Text('Message: %s' % candidate_commit.commit.message, align='left'),
+                blank,
+                urwid.Text('Files: (%d/%d)' % (
+                    candidate_commit.numbers_of_file_found,
+                    candidate_commit.total_file_staged
+                ), align='left'),
+                separator,
+            ]
 
         for staged_file in get_staged_files():
             list_items.append(urwid.AttrMap(

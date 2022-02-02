@@ -30,6 +30,8 @@ shortcuts = {
 
 def add_git_option_shortcuts():
     git_config_shortcuts = git_get_config_by_regexp(CONFIG_KEY_SECTION + r'\.shortcut-[0-9]+')
+    if git_config_shortcuts is None:
+        return
     for group in re.finditer(
             CONFIG_KEY_SECTION + r'\.(shortcut-[0-9]+) (.*?):(.*)',
             git_config_shortcuts,
