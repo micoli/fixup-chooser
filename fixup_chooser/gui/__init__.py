@@ -1,4 +1,5 @@
 import os
+
 import urwid
 
 from fixup_chooser.fixup import candidates_commit_for_fixup
@@ -9,7 +10,10 @@ from fixup_chooser.gui.git_commit_message import PopupCommitMessage, CommitMessa
 from fixup_chooser.gui.git_status import PopupGitStatus
 from fixup_chooser.gui.scrollview import ScrollView
 # pylint: disable=too-many-instance-attributes
+from fixup_chooser.gui.shortcut import shortcuts, get_shortcut_by_key, shortcut_list
+from fixup_chooser.gui.shortcuts_help import PopupShortcutsHelp
 from fixup_chooser.gui.tabular_items import TabularItems
+
 
 palette = {
     ("bg", 'white', 'black'),
@@ -85,7 +89,7 @@ class App:
             footer=urwid.AttrMap(urwid.BoxAdapter(
                 urwid.LineBox(
                     self.candidates_commit_list_view,
-                    title='Commits - [f] toggle filter on candidate - [s] git status - [a] add patch - [m] commit - [x] fixup'
+                    title='Commits ' + shortcut_list()
                 ),
                 height=15
             ), 'window', 'window_selected')
@@ -93,6 +97,9 @@ class App:
 
         self.git_status_popup = PopupGitStatus()
         urwid.connect_signal(self.git_status_popup, 'validated', self.show_main_screen)
+
+        self.shortcuts_help_popup = PopupShortcutsHelp()
+        urwid.connect_signal(self.shortcuts_help_popup, 'validated', self.show_main_screen)
 
         self.git_commit_popup = PopupCommitMessage()
         urwid.connect_signal(self.git_commit_popup, 'validated', self.git_commit_popup_validated)
@@ -157,7 +164,7 @@ class App:
         return candidates
 
     def loop_screen_is_started(self):
-        return  self.loop.screen._started # pylint: disable=protected-access
+        return self.loop.screen._started # pylint: disable=protected-access
 
     def shell_command(self, command):
         self.loop.screen.stop()
@@ -180,21 +187,37 @@ class App:
             valign='middle', height=('relative', 30)
         )
 
-    def unhandled_input(self, key):
-        if key in ('q',):
+    def display_shortcuts_help(self):
+        self.loop.widget = urwid.Overlay(
+            self.shortcuts_help_popup,
+            self.frame,
+            align='center', width=('relative', 60),
+            valign='middle', height=('relative', 30)
+        )
+
+    def unhandled_input(self, key):  #pylint: disable=too-many-branches
+        custom_shortcut = get_shortcut_by_key(key, False)
+        if custom_shortcut is not None:
+            self.shell_command(custom_shortcut.message)
+            return
+
+        if key == shortcuts.get('QUIT').key:
             raise KeyboardInterrupt()
 
-        if key in ('s',):
+        if key == shortcuts.get('GIT_STATUS').key:
             if self.loop.widget == self.frame:
                 self.loop.widget = self.git_status_popup
                 self.git_status_popup.reload()
             else:
                 self.show_main_screen()
 
-        if key in ('a',):
+        if key == 'esc':
+            self.show_main_screen()
+
+        if key == shortcuts.get('GIT_ADD_PATCH').key:
             self.shell_command(self.add_patch_command)
 
-        if key in ('x',):
+        if key == shortcuts.get('GIT_COMMIT_FIXUP').key:
             if self.selected_candidate_commit is None:
                 return
 
@@ -203,17 +226,20 @@ class App:
 
             self.shell_command(command)
 
-        if key in ('m',):
+        if key == shortcuts.get('GIT_COMMIT_MESSAGE').key:
             self.display_git_commit_popup()
 
-        if key in ('f',):
+        if key == shortcuts.get('SHOW_SHORTCUTS').key:
+            self.display_shortcuts_help()
+
+        if key == shortcuts.get('TOGGLE_FILTER').key:
             self.toggle_only_candidate()
 
-        if key in ('enter',):
+        if key == shortcuts.get('GIT_COMMIT_FIXUP_AND_EXIT').key:
             raise urwid.ExitMainLoop()
 
-        if key in ('tab',):
+        if key == shortcuts.get('SELECT_NEXT_PANE').key:
             self.tabular_items.handle_next()
 
-        if key in ('shift tab',):
+        if key == shortcuts.get('SELECT_PREVIOUS_PANE').key:
             self.tabular_items.handle_previous()

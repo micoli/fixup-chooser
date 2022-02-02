@@ -112,12 +112,20 @@ Option values are taken in the following order:
 ├───────────────────────────────┼────────────────────────────────────┼─────────────────────────────────┼──────────────────────────┤
 │ GIT command to "git commit"   │ FIXUP_CHOOSER_COMMIT_COMMAND       │ fixupChooser.commitCommand      │ git commit               │
 ╘═══════════════════════════════╧════════════════════════════════════╧═════════════════════════════════╧══════════════════════════╛
+```
  
-`FIXUP_CHOOSER_REBASE_ORIGIN` set the origin of the branch, if not set then `origin/master` is used, if it
-does not exists, then `ALL` commits are processed
+## Custom command shortcuts
+You can put some custom shortcuts in your gitconfig file, those keys must be unique and match `shortcut-[0-9]+`.
+For example, to add a shortcut `l` to execute `git fetch --all`, you can add in `~/.gitconfig`:
+```
+[fixupChooser]
+    shortcut-0= "n:git add . -N"
+    shortcut-1= "r:git rebase -i --autosquash origin/master"
+    shortcut-2= "l:git fetch --all"
+```
+
 
 ## How to Develop
-```
 $ make init
 ....
 $ make test

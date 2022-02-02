@@ -8,6 +8,7 @@ from fixup_chooser.configuration import add_options_list, display_options_help, 
 from fixup_chooser.fixup import format_candidates_commit_for_fixup, candidates_commit_for_fixup
 from fixup_chooser.git import do_commit_fixup
 from fixup_chooser.gui import App
+from fixup_chooser.gui.shortcut import add_git_option_shortcuts
 
 colored_traceback.add_hook(always=True)
 pp = pprint.PrettyPrinter(indent=4)
@@ -42,6 +43,8 @@ def parse_main_args():
 
 def main() -> None:
     args = parse_main_args()
+
+    add_git_option_shortcuts()
 
     if args.git_init:
         init_git_configuration()

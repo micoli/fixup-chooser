@@ -112,7 +112,7 @@ def do_commit_fixup(command_format, sha):
 
 def do_commit(command_format, message, body):
     command = (command_format + ' -m "%s"') % message
-    if body is not None or len(body.strip()) != 0:
+    if body is not None and len(body.strip()) != 0:
         command = (command_format + ' -m "%s" -m "%s"') % (message, body)
     os.system(command)
 
@@ -134,6 +134,13 @@ def colored_git_status():
 def git_get_config(config_key):
     try:
         return process_exec(['git', 'config', '--get', config_key]).strip()
+    except:  # pylint: disable=bare-except
+        return None
+
+
+def git_get_config_by_regexp(regexp):
+    try:
+        return process_exec(['git', 'config', '--get-regexp', regexp]).strip()
     except:  # pylint: disable=bare-except
         return None
 
