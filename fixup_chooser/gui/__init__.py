@@ -49,12 +49,13 @@ palette = {
 
 
 class App:
-    def __init__(self, rebase_origin, add_patch_command, commit_fixup_command, commit_command):
+    def __init__(self, rebase_origin, add_patch_command, commit_fixup_command, commit_command, fixup_on_enter):
         self.only_candidate = True
         self.add_patch_command = add_patch_command
         self.rebase_origin = rebase_origin
         self.commit_fixup_command = commit_fixup_command
         self.commit_command = commit_command
+        self.fixup_on_enter = fixup_on_enter
         self.selected_candidate_commit = None
         self.palette = palette
         self.detail_view = CandidateCommitDetailView()
@@ -236,7 +237,8 @@ class App:
             self.toggle_only_candidate()
 
         if key == shortcuts.get('GIT_COMMIT_FIXUP_AND_EXIT').key:
-            raise urwid.ExitMainLoop()
+            if self.fixup_on_enter:
+                raise urwid.ExitMainLoop()
 
         if key == shortcuts.get('SELECT_NEXT_PANE').key:
             self.tabular_items.handle_next()

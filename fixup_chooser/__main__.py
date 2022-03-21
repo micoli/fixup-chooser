@@ -55,7 +55,13 @@ def main() -> None:
             print(line)
 
     if args.action == 'gui':
-        app = App(args.rebase_origin, args.add_patch_command, args.commit_fixup_command, args.commit_command)
+        app = App(
+            args.rebase_origin,
+            args.add_patch_command,
+            args.commit_fixup_command,
+            args.commit_command,
+            args.fixup_on_enter == '1'
+        )
         try:
             sha = app.start()
             if sha is not None:

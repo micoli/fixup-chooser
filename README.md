@@ -95,6 +95,8 @@ optional arguments:
                         GIT command to "git add -p" (git add -p)
   --commit-command COMMIT_COMMAND
                         GIT command to "git commit" (git commit)
+  --fixup-on-enter FIXUP_ON_ENTER
+                        Enter do commit fixup and exit (1)
 
 Option values are taken in the following order:
  - Internal default value at first
@@ -111,6 +113,8 @@ Option values are taken in the following order:
 │ GIT command to "git add -p"   │ FIXUP_CHOOSER_ADD_PATCH_COMMAND    │ fixupChooser.addPatchCommand    │ git add -p               │
 ├───────────────────────────────┼────────────────────────────────────┼─────────────────────────────────┼──────────────────────────┤
 │ GIT command to "git commit"   │ FIXUP_CHOOSER_COMMIT_COMMAND       │ fixupChooser.commitCommand      │ git commit               │
+├───────────────────────────────┼────────────────────────────────────┼─────────────────────────────────┼──────────────────────────┤
+│ Enter do commit fixup and exit│ FIXUP_CHOOSER_FIXUP_ON_ENTER       │ fixupChooser.fixupOnEnter       │ 1                        │
 ╘═══════════════════════════════╧════════════════════════════════════╧═════════════════════════════════╧══════════════════════════╛
 ```
  

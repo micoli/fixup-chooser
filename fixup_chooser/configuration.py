@@ -55,6 +55,10 @@ options = [ConfigurationOption(
     argument_name='commit-command',
     default_value='git commit ',
     message='GIT command to "git commit"',
+), ConfigurationOption(
+    argument_name='fixup-on-enter',
+    default_value='1',
+    message='Enter do commit fixup and exit',
 )]
 
 
@@ -88,5 +92,8 @@ def display_options_help(formatter):
 
 def init_git_configuration():
     for option in options:
+        if git_get_config(option.config_key) is not None:
+            print('Not adding option %s' % option.config_key)
+            continue
         print('Adding option %s to "%s"' % (option.config_key, option.default_value))
         git_set_config(option.config_key, option.default_value)
