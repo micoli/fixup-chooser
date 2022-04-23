@@ -119,11 +119,7 @@ class App:
         self.shell_command(command)
 
     def start(self):
-        candidates_commit = self.get_candidates_commit_for_fixup()
-        if len(candidates_commit) == 0:
-            self.only_candidate = False
-            candidates_commit = self.get_candidates_commit_for_fixup()
-        self.update_candidates_commit_list(candidates_commit)
+        self.refresh_commit_candidate_commits()
         self.loop.run()
         return self.selected_candidate_commit.sha if self.selected_candidate_commit is not None else None
 
@@ -139,12 +135,17 @@ class App:
     def update_candidates_commit_list(self, candidates_commit_list):
         self.candidates_commit_list_view.set_candidates_commit_list(candidates_commit_list)
 
-    def show_main_screen(self, *kwargs):  # pylint: disable=unused-argument
+    # pylint: disable=unused-argument
+    def show_main_screen(self, *kwargs):
         self.loop.widget = self.frame
         self.loop.draw_screen()
 
     def refresh_commit_candidate_commits(self):
-        self.update_candidates_commit_list(self.get_candidates_commit_for_fixup())
+        candidates_commit = self.get_candidates_commit_for_fixup()
+        if len(candidates_commit) == 0 and self.only_candidate:
+            self.only_candidate = False
+            candidates_commit = self.get_candidates_commit_for_fixup()
+        self.update_candidates_commit_list(candidates_commit)
 
     def toggle_only_candidate(self):
         self.only_candidate = not self.only_candidate
